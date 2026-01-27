@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace Domain;
 
@@ -11,25 +10,26 @@ public enum SourceType
     Adjustment = 3
 }
 
+public enum InboundRecordStatus
+{
+    PendingApproval = 0,
+    Approved = 1,
+    Rejected = 2
+}
 
 
 public class InboundRecord
 {
     public string Id { get; set; } = Guid.CreateVersion7(TimeProvider.System.GetUtcNow()).ToString();
 
-    [MaxLength(20)]
     public required SourceType SourceType { get; set; }// Supplier, Return, Adjustment
 
-    [MaxLength(100)]
-    public string? SourceReference { get; set; }
+    public string? SourceReference { get; set; }// mã đơn đặt hàng với supplier, mã phiếu trả hàng
 
-    [MaxLength(20)]
-    public required string Status { get; set; } = "PENDING_APPROVAL";
+    public required InboundRecordStatus Status { get; set; } = InboundRecordStatus.PendingApproval;// PENDING_APPROVAL, APPROVED, REJECTED
 
-    [Required]
-    public int TotalItems { get; set; }
+    public required int TotalItems { get; set; }
 
-    [MaxLength(500)]
     public string? Notes { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -42,7 +42,6 @@ public class InboundRecord
 
     public DateTime? RejectedAt { get; set; }
 
-    [MaxLength(500)]
     public string? RejectionReason { get; set; }
 
     // Navigation properties

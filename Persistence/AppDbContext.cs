@@ -478,6 +478,57 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
             });
         });
 
+        //// InboundRecord ENTITY CONFIGURATION 
+        builder.Entity<InboundRecord>(entity =>{
+            //Relationships
+            entity.HasOne(e => e.Creator)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Approver)
+                .WithMany()
+                .HasForeignKey(e => e.ApprovedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Properties
+            entity.Property(e => e.SourceReference).HasMaxLength(100);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.RejectionReason).HasMaxLength(500);
+
+            //Indexes
+            entity.HasIndex(e => e.SourceType)
+                .HasDatabaseName("IX_InboundRecord_SourceType");
+            
+            entity.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_InboundRecord_Status");
+            
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("IX_InboundRecord_CreatedAt");
+            
+            entity.HasIndex(e => e.CreatedBy)
+                .HasDatabaseName("IX_InboundRecord_CreatedBy");
+            
+            entity.HasIndex(e => e.ApprovedAt)
+                .HasDatabaseName("IX_InboundRecord_ApprovedAt");
+            
+            entity.HasIndex(e => e.ApprovedBy)
+                .HasDatabaseName("IX_InboundRecord_ApprovedBy");
+
+            //Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_InboundRecord_SourceType",
+                    "[SourceType] IN (1, 2, 3)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_InboundRecord_Status",
+                    "[Status] IN (0, 1, 2)"
+                );
+            });
+        });
     }
 
 }
