@@ -801,5 +801,39 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 );
             });
         });  
+
+        //ORDER STATUS HISTORY ENTITY CONFIGURATION
+        builder.Entity<OrderStatusHistory>(entity =>
+        {
+            // Relationships
+            entity.HasOne(osh => osh.Order)
+                .WithMany(o => o.StatusHistories)
+                .HasForeignKey(osh => osh.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Properties
+            entity.Property(x => x.FromStatus)
+                .HasConversion<string>()
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(x => x.ToStatus)
+                .HasConversion<string>()
+                .HasMaxLength(30)
+                .IsRequired();
+                
+            entity.Property(osh => osh.Notes).HasMaxLength(500);
+
+            // Indexes
+            entity.HasIndex(e => e.OrderId)
+                .HasDatabaseName("IX_OrderStatusHistory_OrderId");
+            
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("IX_OrderStatusHistory_CreatedAt");
+            
+            entity.HasIndex(e => new { e.OrderId, e.CreatedAt })
+                .HasDatabaseName("IX_OrderStatusHistory_OrderId_CreatedAt");
+
+        });
     }
 }
