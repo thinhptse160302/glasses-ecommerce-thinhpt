@@ -573,6 +573,48 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 );
             });
         });
+
+        //CART ENTITY CONFIGURATION
+        builder.Entity<Cart>(entity =>
+        {
+            //Relationships
+            entity.HasOne(c => c.User)
+                .WithMany(u => u.Carts)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Indexes
+
+            entity.HasIndex(e => e.UserId)
+                .HasDatabaseName("IX_Cart_UserId");
+
+            //1 active cart per user
+            entity.HasIndex(c => c.UserId)
+                .IsUnique()
+                .HasFilter("[Status] = 1")
+                .HasDatabaseName("UX_Cart_User_Active");
+            
+            entity.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_Cart_Status");
+            
+            entity.HasIndex(e => new { e.UserId, e.Status })
+                .HasDatabaseName("IX_Cart_UserId_Status");
+            
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("IX_Cart_CreatedAt");
+            
+            entity.HasIndex(e => e.UpdatedAt)
+                .HasDatabaseName("IX_Cart_UpdatedAt");
+
+            //Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_Cart_Status",
+                    "[Status] IN (1, 2, 3)"
+                );
+            });
+        });
     }
 
 }

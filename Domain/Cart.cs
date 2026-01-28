@@ -7,7 +7,7 @@ public enum CartStatus
 {
     Unknown = 0,
     Active = 1,
-    Abandoned = 2,
+    Abandoned = 2,//Abandoned là trạng thái suy ra theo thời gian
     Converted = 3
 }
 
@@ -20,8 +20,7 @@ public class Cart
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    [MaxLength(20)]
-    public required CartStatus Status { get; set; } = CartStatus.Active;
+    public CartStatus Status { get; set; } = CartStatus.Active;
 
     // Navigation properties
     public User? User { get; set; }
