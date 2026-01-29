@@ -1084,6 +1084,11 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 .WithOne(o => o.ShipmentInfo)
                 .HasForeignKey<ShipmentInfo>(si => si.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(si => si.Creator)
+                .WithMany()
+                .HasForeignKey(si => si.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //Properties
             entity.Property(si => si.TrackingCode).HasMaxLength(100);
