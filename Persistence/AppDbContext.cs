@@ -1122,5 +1122,70 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 );
             });
         });
+
+        //AfterSalesTicket ENTITY CONFIGURATION
+        builder.Entity<AfterSalesTicket>(entity =>
+        {
+            //Relationships
+            entity.HasOne(ast => ast.Order)
+                .WithMany(o => o.AfterSalesTickets)
+                .HasForeignKey(ast => ast.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ast => ast.OrderItem)
+                .WithMany(oi => oi.AfterSalesTickets)
+                .HasForeignKey(ast => ast.OrderItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ast => ast.AssignedStaff)
+                .WithMany()
+                .HasForeignKey(ast => ast.AssignedTo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(ast => ast.Customer)
+                .WithMany()
+                .HasForeignKey(ast => ast.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Properties
+            entity.Property(ast => ast.Reason).HasMaxLength(500);
+            entity.Property(ast => ast.RequestedAction).HasMaxLength(500);
+            entity.Property(ast => ast.PolicyViolation).HasMaxLength(500);
+            entity.Property(ast => ast.RefundAmount).HasColumnType("decimal(10,2)");
+
+            //Indexes
+            entity.HasIndex(e => e.OrderId)
+                .HasDatabaseName("IX_AfterSalesTicket_OrderId");
+            entity.HasIndex(e => e.OrderItemId)
+                .HasDatabaseName("IX_AfterSalesTicket_OrderItemId");
+            entity.HasIndex(e => e.CustomerId)
+                .HasDatabaseName("IX_AfterSalesTicket_CustomerId");
+            entity.HasIndex(e => e.TicketType)
+                .HasDatabaseName("IX_AfterSalesTicket_TicketType");
+            entity.HasIndex(e => e.TicketStatus)
+                .HasDatabaseName("IX_AfterSalesTicket_TicketStatus");
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("IX_AfterSalesTicket_CreatedAt");
+            entity.HasIndex(e => e.ResolvedAt)
+                .HasDatabaseName("IX_AfterSalesTicket_ResolvedAt");
+            entity.HasIndex(e => e.AssignedTo)
+                .HasDatabaseName("IX_AfterSalesTicket_AssignedTo");
+            entity.HasIndex(e => new { e.CustomerId, e.TicketStatus })
+                .HasDatabaseName("IX_AfterSalesTicket_CustomerId_Status");
+
+            //Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_AfterSalesTicket_TicketType",
+                    "[TicketType] IN (0, 1, 2, 3)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_AfterSalesTicket_TicketStatus",
+                    "[TicketStatus] IN (1, 2, 3, 4, 5)"
+                );
+            });
+        });
     }
 }
