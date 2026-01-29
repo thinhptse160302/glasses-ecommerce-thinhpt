@@ -946,7 +946,93 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                     "
                 );
             });
+        });
 
+        // PAYMENT ENTITY CONFIGURATION
+        builder.Entity<Payment>(entity =>
+        {
+            // Relationships
+            entity.HasOne(p => p.Order)
+                .WithMany(o => o.Payments)
+                .HasForeignKey(p => p.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Properties
+            entity.Property(p => p.PaymentMethod).IsRequired();
+
+            entity.Property(p => p.PaymentStatus).IsRequired();
+
+            entity.Property(p => p.Amount).HasColumnType("decimal(10,2)");
+
+            entity.Property(p => p.TransactionId).HasMaxLength(100);
+
+            entity.Property(p => p.PaymentType).IsRequired();
+
+            // Indexes
+            entity.HasIndex(e => e.OrderId)
+                .HasDatabaseName("IX_Payment_OrderId");
+
+            entity.HasIndex(e => e.PaymentStatus)
+                .HasDatabaseName("IX_Payment_PaymentStatus");
+            
+            entity.HasIndex(e => e.TransactionId)
+                .HasDatabaseName("IX_Payment_TransactionId");
+            
+            entity.HasIndex(e => e.PaymentAt)
+                .HasDatabaseName("IX_Payment_PaymentAt");
+
+            // Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_Payment_Method",
+                    "[PaymentMethod] > 0"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_Payment_Status",
+                    "[PaymentStatus] > 0"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_Payment_Type",
+                    "[PaymentType] > 0"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_Payment_Amount",
+                    "[Amount] >= 0"
+                );
+
+                // Conditional constraint on PaymentAt based on PaymentStatus
+                t.HasCheckConstraint(
+                    "CK_Payment_Status_PaymentAt",
+                    @"
+                    (
+                        PaymentStatus = 1 AND PaymentAt IS NULL
+                    )
+                    OR
+                    (
+                        PaymentStatus IN (2,3,4) AND PaymentAt IS NOT NULL
+                    )
+                    "
+                );
+
+                // Conditional constraint on TransactionId based on PaymentMethod
+                t.HasCheckConstraint(
+                    "CK_Payment_Transaction_By_Method",
+                    @"
+                    (
+                        PaymentMethod = 1
+                    )
+                    OR
+                    (
+                        PaymentMethod IN (2,3) AND TransactionId IS NOT NULL
+                    )
+                    "
+                );
+
+            });
         });
     }
 }
