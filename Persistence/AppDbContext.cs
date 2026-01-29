@@ -883,5 +883,70 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 );
             });
         });
+
+        // PRESCRIPTION DETAIL ENTITY CONFIGURATION
+        builder.Entity<PrescriptionDetail>(entity =>
+        {
+            // Relationships
+            entity.HasOne(pd => pd.Prescription)
+                .WithMany(p => p.Details)
+                .HasForeignKey(pd => pd.PrescriptionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Properties
+            entity.Property(pd => pd.SPH).HasColumnType("decimal(5,2)");
+            entity.Property(pd => pd.CYL).HasColumnType("decimal(5,2)");
+            entity.Property(pd => pd.PD).HasColumnType("decimal(5,2)");
+            entity.Property(pd => pd.ADD).HasColumnType("decimal(5,2)");
+
+            // Indexes
+            entity.HasIndex(e => e.PrescriptionId)
+                .HasDatabaseName("IX_PrescriptionDetail_PrescriptionId");
+            
+            //1 prescription chỉ có 1 detail cho left eye và 1 detail cho right eye
+            entity.HasIndex(e => new { e.PrescriptionId, e.Eye })
+                .IsUnique()
+                .HasDatabaseName("UX_PrescriptionDetail_PrescriptionId_Eye");
+
+            // Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_Eye",
+                    "[Eye] IN (1, 2)"
+                );
+
+                //medical domain
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_SPH",
+                    "[SPH] IS NULL OR ([SPH] BETWEEN -20.00 AND 20.00)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_CYL",
+                    "[CYL] IS NULL OR ([CYL] BETWEEN -6.00 AND 0.00)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_AXIS",
+                    "[AXIS] IS NULL OR ([AXIS] BETWEEN 0 AND 180)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_PD",
+                    "[PD] IS NULL OR ([PD] BETWEEN 40.00 AND 80.00)"
+                );
+
+                t.HasCheckConstraint(
+                    "CK_PrescriptionDetail_AXIS_Requires_CYL",
+                    @"
+                    (CYL IS NULL AND AXIS IS NULL)
+                    OR
+                    (CYL IS NOT NULL AND AXIS IS NOT NULL)
+                    "
+                );
+            });
+
+        });
     }
 }
