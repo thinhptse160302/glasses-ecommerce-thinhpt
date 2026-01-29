@@ -1075,5 +1075,52 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
                 );
             });
         });
+
+        //SHIPMENT INFO ENTITY CONFIGURATION
+        builder.Entity<ShipmentInfo>(entity =>
+        {
+            //Relationships
+            entity.HasOne(si => si.Order)
+                .WithOne(o => o.ShipmentInfo)
+                .HasForeignKey<ShipmentInfo>(si => si.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Properties
+            entity.Property(si => si.TrackingCode).HasMaxLength(100);
+            entity.Property(si => si.TrackingUrl).HasMaxLength(500);
+            entity.Property(si => si.PackageDimensions).HasMaxLength(100);
+            entity.Property(si => si.PackageWeight).HasColumnType("decimal(10,2)");
+            entity.Property(si => si.ShippingNotes).HasMaxLength(500);
+            entity.Property(si => si.CarrierName).IsRequired();
+
+            //Indexes
+            entity.HasIndex(e => e.OrderId)
+                .IsUnique()
+                .HasDatabaseName("UX_ShipmentInfo_OrderId");
+            
+            entity.HasIndex(e => e.ActualDeliveryAt)
+                .HasDatabaseName("IX_ShipmentInfo_DeliveredAt");
+            
+            entity.HasIndex(e => e.TrackingCode)
+                .HasDatabaseName("IX_ShipmentInfo_TrackingCode");
+            
+            entity.HasIndex(e => e.CarrierName)
+                .HasDatabaseName("IX_ShipmentInfo_CarrierName");
+            
+            entity.HasIndex(e => e.ShippedAt)
+                .HasDatabaseName("IX_ShipmentInfo_ShippedAt");
+            
+            entity.HasIndex(e => e.CreatedBy)
+                .HasDatabaseName("IX_ShipmentInfo_CreatedBy");
+
+            // Constraints
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_ShipmentInfo_Carrier",
+                    "[CarrierName] IN (0, 1, 2)"
+                );
+            });
+        });
     }
 }
