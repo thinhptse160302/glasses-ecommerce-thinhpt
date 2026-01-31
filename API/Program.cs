@@ -35,6 +35,7 @@ builder.Services.AddControllers(opt =>
 
 builder.Services.AddOpenApi();
 
+
 //SQLite
 // builder.Services.AddDbContext<AppDbContext>(opt =>
 // {
@@ -136,16 +137,21 @@ app.MapGroup("api").MapIdentityApi<User>();
 
 app.MapOpenApi(); 
 
-app.MapScalarApiReference(options =>
+app.MapScalarApiReference("/api/docs", options =>
 {
     options
         .WithTitle("Glasses API")
-        .WithTheme(ScalarTheme.BluePlanet)
+        .WithTheme(ScalarTheme.Laserwave)
         .WithDefaultHttpClient(
             ScalarTarget.JavaScript,
             ScalarClient.Axios
         )
+        .ShowOperationId()
+        .SortTagsAlphabetically()
+        .SortOperationsByMethod()
+        .PreserveSchemaPropertyOrder()//SHOULD HAVE
         .ShowSidebar = true;
+        
 });
 
 /*
