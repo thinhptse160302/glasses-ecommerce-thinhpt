@@ -172,8 +172,9 @@ try
 {
     var context = services.GetRequiredService<AppDbContext>();
     var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     await context.Database.MigrateAsync(); // Apply any pending migrations to the database.
-    await DbInitializer.SeedData(context, userManager); // Seed the database with initial data.
+    await DbInitializer.SeedData(context, userManager, roleManager); // Seed the database with initial data.
 }
 catch (Exception ex)
 {
