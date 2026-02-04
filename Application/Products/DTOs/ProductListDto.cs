@@ -10,6 +10,7 @@ public sealed class ProductListDto
     public required string ProductName { get; set; }
     public required ProductType Type { get; set; }
     public string? Brand { get; set; }
+    public string? Description { get; set; }
     public decimal MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
     public int TotalQuantityAvailable { get; set; }

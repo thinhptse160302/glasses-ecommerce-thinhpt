@@ -77,30 +77,23 @@ public class PhotoService : IPhotoService
             return null;
         }
 
-        try
+        var uploadParams = new ImageUploadParams
         {
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(imageUrl),
-                Folder = "glasses"
-            };
+            File = new FileDescription(imageUrl),
+            Folder = "glasses"
+        };
 
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-            if (uploadResult.Error != null)
-            {
-                throw new Exception(uploadResult.Error.Message);
-            }
-
-            return new PhotoUploadResult
-            {
-                PublicId = uploadResult.PublicId,
-                Url = uploadResult.SecureUrl.AbsoluteUri
-            };
-        }
-        catch (Exception ex)
+        if (uploadResult.Error != null)
         {
-            throw new Exception($"Failed to upload image from URL: {ex.Message}");
+            throw new Exception(uploadResult.Error.Message);
         }
+
+        return new PhotoUploadResult
+        {
+            PublicId = uploadResult.PublicId,
+            Url = uploadResult.SecureUrl.AbsoluteUri
+        };
     }
 }
