@@ -1,12 +1,12 @@
+using Application.Categories.DTOs;
 using Application.Core;
-using Application.Products.DTOs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Products.Queries;
+namespace Application.Categories.Queries;
 
 public sealed class GetCategories
 {
@@ -19,7 +19,7 @@ public sealed class GetCategories
     {
         public async Task<Result<List<ProductCategoryDto>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var categories = await context.ProductCategories
+            List<ProductCategoryDto> categories = await context.ProductCategories
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Name)
                 .ProjectTo<ProductCategoryDto>(mapper.ConfigurationProvider)

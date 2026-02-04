@@ -1,3 +1,4 @@
+using Application.Categories.DTOs;
 using Domain;
 
 namespace Application.Products.DTOs;

@@ -1,5 +1,6 @@
 using System;
 using Application.Activities.DTOs;
+using Application.Categories.DTOs;
 using Application.Profiles.DTOs;
 using Application.Products.DTOs;
 using AutoMapper;

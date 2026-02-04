@@ -1,4 +1,4 @@
-namespace Application.Products.DTOs;
+namespace Application.Categories.DTOs;
 
 public sealed class ProductCategoryDto
 {

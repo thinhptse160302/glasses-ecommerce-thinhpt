@@ -45,16 +45,4 @@ public sealed class ProductsController : BaseApiController
     {
         return HandleResult(await Mediator.Send(new GetProductDetail.Query { Id = id }));
     }
-
-    [HttpGet("categories")]
-    public async Task<ActionResult<List<ProductCategoryDto>>> GetCategories()
-    {
-        return HandleResult(await Mediator.Send(new GetCategories.Query()));
-    }
-
-    [HttpGet("brands")]
-    public async Task<ActionResult<List<string>>> GetBrands()
-    {
-        return HandleResult(await Mediator.Send(new GetBrands.Query()));
-    }
 }
