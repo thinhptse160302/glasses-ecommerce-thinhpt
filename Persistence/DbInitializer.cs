@@ -35,7 +35,7 @@ public class DbInitializer
             new() {DisplayName = "Manager User", UserName = "manager@test.com", Email = "manager@test.com"} ,
             new() {DisplayName = "Admin User", UserName = "admin@test.com", Email = "admin@test.com"} ,
         };
-
+        
         if (!userManager.Users.Any())
         {
             for (int i = 0; i < users.Count; i++)
