@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LoginSchema } from "../schemas/loginSchema";
 import agent from "../api/agent";
@@ -9,6 +10,13 @@ export const useAccount = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Xóa cache user khi vào trang login/register → tránh hiển thị avatar cũ khi chưa login
+  useEffect(() => {
+    if (location.pathname === "/login" || location.pathname === "/register") {
+      queryClient.removeQueries({ queryKey: ["user"] });
+    }
+  }, [location.pathname, queryClient]);
 
   const fetchUser = async () => {
     const response = await agent.get<User>("/account/user-info");
@@ -33,9 +41,19 @@ export const useAccount = () => {
     mutationFn: async (creds: RegisterSchema) => {
       await agent.post("/account/register", creds);
     },
-    onSuccess: () => {
-      toast.success("Register successful - you can now login");
-      navigate("/collections");
+    onSuccess: async (_data, variables) => {
+      toast.success("Đăng ký thành công! Đang đăng nhập…");
+      try {
+        await agent.post("/login?useCookies=true", {
+          email: variables.email,
+          password: variables.password,
+        });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+        navigate("/auth/redirect");
+      } catch {
+        toast.info("Đăng ký thành công. Vui lòng đăng nhập.");
+        navigate("/login");
+      }
     },
   });
 

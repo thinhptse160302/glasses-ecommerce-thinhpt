@@ -36,9 +36,10 @@ export default function ProductDetailPage() {
     const [activeImg, setActiveImg] = useState(0);
 
     const currentVariant = useMemo(() => {
-        if (!product?.variants?.length) return null;
-        const found = product.variants.find((v) => v.id === activeVariantId);
-        return found ?? product.variants[0];
+        const variants = Array.isArray(product?.variants) ? product.variants : [];
+        if (!variants.length) return null;
+        const found = variants.find((v) => v.id === activeVariantId);
+        return found ?? variants[0];
     }, [product, activeVariantId]);
 
     const images = useMemo(() => {
