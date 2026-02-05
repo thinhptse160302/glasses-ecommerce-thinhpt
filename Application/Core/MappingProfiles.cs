@@ -37,7 +37,9 @@ public class MappingProfiles : Profile
         
         CreateMap<ProductVariant, ProductVariantDto>()
             .ForMember(d => d.QuantityAvailable, o => o.MapFrom(s => 
-                s.Stock != null ? s.Stock.QuantityAvailable : 0));
+                s.Stock != null ? s.Stock.QuantityAvailable : 0))
+            .ForMember(d => d.Images, o => o.MapFrom(s => 
+                s.Images.OrderBy(i => i.DisplayOrder)));
         
         CreateMap<Product, ProductDto>()
             .ForMember(d => d.Variants, o => o.MapFrom(s => 
