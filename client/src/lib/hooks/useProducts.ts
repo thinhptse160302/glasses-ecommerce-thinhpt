@@ -163,11 +163,13 @@ export interface ProductDetailView {
 }
 
 function mapDetailApiToView(api: ProductDetailApi): ProductDetailView {
+  const apiImages = Array.isArray(api.images) ? api.images : [];
+  const apiVariants = Array.isArray(api.variants) ? api.variants : [];
+
   // Sắp xếp ảnh sản phẩm theo displayOrder để lấy ảnh hero ổn định
-  const sortedProductImages =
-    api.images
-      ?.slice()
-      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)) ?? [];
+  const sortedProductImages = apiImages
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
   const heroUrl = sortedProductImages[0]?.imageUrl;
 
@@ -175,25 +177,28 @@ function mapDetailApiToView(api: ProductDetailApi): ProductDetailView {
   // nếu không có thì fallback isActive hoặc variant đầu tiên
   const mainVariant =
     (heroUrl &&
-      api.variants.find((v) =>
-        v.images?.some((img) => img.imageUrl === heroUrl),
+      apiVariants.find((v) =>
+        Array.isArray(v.images)
+          ? v.images.some((img) => img.imageUrl === heroUrl)
+          : false,
       )) ||
-    api.variants.find((v) => v.isActive) ||
-    api.variants[0];
+    apiVariants.find((v) => v.isActive) ||
+    apiVariants[0];
 
   const price = mainVariant?.price ?? 0;
 
   // Sắp xếp ảnh của mainVariant theo displayOrder trước khi map ra URL
-  const variantImages =
-    mainVariant?.images
-      ?.slice()
-      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-      .map((img) => img.imageUrl) ?? [];
+  const variantImages = Array.isArray(mainVariant?.images)
+    ? mainVariant.images
+        .slice()
+        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+        .map((img) => img.imageUrl)
+    : [];
 
   const productImages = sortedProductImages.map((img) => img.imageUrl);
   const images = [...variantImages, ...productImages];
 
-  const variantsMapped = api.variants.map((v) => ({
+  const variantsMapped = apiVariants.map((v) => ({
     id: v.id,
     sku: v.sku,
     variantName: v.variantName,
@@ -207,11 +212,12 @@ function mapDetailApiToView(api: ProductDetailApi): ProductDetailView {
     price: v.price,
     compareAtPrice: v.compareAtPrice,
     quantityAvailable: v.quantityAvailable,
-    images:
-      v.images
-        ?.slice()
-        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-        .map((img) => img.imageUrl) ?? [],
+    images: Array.isArray(v.images)
+      ? v.images
+          .slice()
+          .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+          .map((img) => img.imageUrl)
+      : [],
   }));
 
   // Đảm bảo mainVariant luôn đứng đầu danh sách variants
