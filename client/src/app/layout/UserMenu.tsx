@@ -1,11 +1,9 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import {
   Avatar,
-  Box,
   Divider,
   IconButton,
   ListItemIcon,
@@ -51,9 +49,10 @@ export default function UserMenu() {
             bgcolor: "#111827",
             fontSize: 14,
           }}
-          src={currentUser?.imageUrl}
+          src={currentUser?.imageUrl || "/images/user.png"}
+          imgProps={{ referrerPolicy: "no-referrer" }}
         >
-          {currentUser?.displayName?.[0]?.toUpperCase()}
+          {currentUser?.displayName?.[0]?.toUpperCase() ?? "?"}
         </Avatar>
       </IconButton>
       <Menu

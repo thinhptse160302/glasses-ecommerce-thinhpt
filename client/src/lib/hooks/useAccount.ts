@@ -5,36 +5,27 @@ import { useLocation, useNavigate } from "react-router";
 import type { RegisterSchema } from "../schemas/registerSchema";
 import { toast } from "react-toastify";
 
-type LoginResponse = {
-  tokenType: string;
-  accessToken: string;
-  expiresIn: number;
-  refreshToken: string;
-};
-
 export const useAccount = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // After user logs in we now store JWT and then fetch user-info using Authorization header
+  const fetchUser = async () => {
+    const response = await agent.get<User>("/account/user-info");
+    return response.data;
+  };
+
   const loginUser = useMutation({
     mutationFn: async (creds: LoginSchema) => {
-      const response = await agent.post<LoginResponse>("/login", {
+      await agent.post("/login?useCookies=true", {
         email: creds.email,
         password: creds.password,
-        twoFactorCode: null,
-        twoFactorRecoveryCode: null,
       });
-
-      const { accessToken, refreshToken } = response.data;
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
     },
-    onSuccess: async () => {
-      await queryClient.fetchQuery({
-        queryKey: ["user"],
-      });
+    onSuccess: () => {
+      // Chỉ invalidate user để các component khác (NavBar, RequireRole, ...) tự fetch user-info.
+      // Tránh gọi user-info ngay lập tức sau login vì cookie có thể chưa kịp được gửi kèm → 401/204.
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
@@ -50,18 +41,16 @@ export const useAccount = () => {
 
   const logoutUser = useMutation({
     mutationFn: async () => {
-      // Optional: also call backend logout if available
       try {
         await agent.post("/account/logout");
       } catch {
-        // ignore backend logout errors; client will still clear auth state
+        // Backend xóa cookie; client vẫn clear cache
       }
     },
     onSuccess: () => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
       queryClient.removeQueries({ queryKey: ["user"] });
       queryClient.removeQueries({ queryKey: ["activities"] });
+      queryClient.removeQueries({ queryKey: ["cart"] });
       navigate("/");
     },
   });
@@ -72,11 +61,7 @@ export const useAccount = () => {
   // we don't want that because we just want to fetch user info once when app loads
   const { data: currentUser, isLoading: loadingUserInfo } = useQuery({
     queryKey: ["user"],
-    queryFn: async () => {
-      const response = await agent.get<User>("/account/user-info");
-      console.log("USER_INFO from backend:", response.data);
-      return response.data;
-    },
+    queryFn: fetchUser,
     //it mean that if we already have user data in cache we don't need to run this query again and the path is not /register
     // enabled:
     //   !queryClient.getQueryData(["user"]) && location.pathname !== "/register",
@@ -87,10 +72,10 @@ export const useAccount = () => {
     //  <RequireAuth> will redirect user to login page forever
     //  instead of letting user access /activities page
 
-    //In this case it mean that if we already have user data in cache we don't need to run this query again
-    //  and the path is not /register and the path is not /login
+    // Luôn fetch khi đang ở /auth/redirect (sau login) để lấy user + roles mới nhất.
+    // Nếu không, cache cũ có thể khiến enabled=false và không fetch → PostLoginRedirect không có roles.
     enabled:
-      !queryClient.getQueryData(["user"]) &&
+      (location.pathname === "/auth/redirect" || !queryClient.getQueryData(["user"])) &&
       location.pathname !== "/register" &&
       location.pathname !== "/login",
   });

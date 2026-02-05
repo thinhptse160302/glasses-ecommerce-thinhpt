@@ -71,6 +71,22 @@ export default function CollectionPage() {
     /* ================== API: products ================== */
     const categorySlug = (category || "").toLowerCase();
 
+    /* ================== sync glassesTypes với slug trên URL ================== */
+    useEffect(() => {
+        if (categorySlug === "sunglasses" || categorySlug === "eyeglasses") {
+            setFilters((prev) =>
+                prev.glassesTypes.length === 1 &&
+                    prev.glassesTypes[0] === categorySlug
+                    ? prev
+                    : { ...prev, glassesTypes: [categorySlug] },
+            );
+        } else {
+            setFilters((prev) =>
+                prev.glassesTypes.length === 0 ? prev : { ...prev, glassesTypes: [] },
+            );
+        }
+    }, [categorySlug]);
+
     // Ưu tiên filter Type (Eyeglasses / Sunglasses) nếu người dùng chọn
     let categoryIds: string[] | undefined;
     if (filters.glassesTypes.length && categories.length) {
@@ -155,12 +171,22 @@ export default function CollectionPage() {
     const handleChangePage = (nextPage: number) => {
         setPage(nextPage);
         requestAnimationFrame(() => {
-            topRef.current?.scrollIntoView({
+            window.scrollTo({
+                top: 0,
                 behavior: "smooth",
-                block: "start",
             });
         });
     };
+
+    /* ================== scroll lên đầu khi đổi category ================== */
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
+        });
+    }, [categorySlug]);
 
     /* ================== active filter count ================== */
     const activeFilterCount =

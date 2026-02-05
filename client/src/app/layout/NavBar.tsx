@@ -24,9 +24,9 @@ import { alpha } from "@mui/material/styles";
 
 import { useStore } from "../../lib/hooks/useStore";
 import { useAccount } from "../../lib/hooks/useAccount";
+import { useCart } from "../../lib/hooks/useCart";
 import UserMenu from "./UserMenu";
 import CartDropdown from "../components/cart/CartDropdown";
-import { cartStore } from "../../lib/stores/cartStore";
 
 // ===== Styles =====
 const NAV_BTN_SX = {
@@ -63,8 +63,8 @@ const SEARCH_BOX_SX = {
 const ICON_SX = { color: "rgba(17,24,39,0.75)" } as const;
 
 const MENU_ITEMS = [
-  { label: "Eyeglasses", to: "/collections/glasses" },
-  { label: "Sunglasses", to: "/collections/fashion" },
+  { label: "Eyeglasses", to: "/collections/eyeglasses" },
+  { label: "Sunglasses", to: "/collections/sunglasses" },
   { label: "Lens", to: "/collections/lens" },
 ] as const;
 
@@ -72,6 +72,7 @@ const MENU_ITEMS = [
 const NavBar = observer(function NavBar() {
   const { uiStore } = useStore();
   const { currentUser } = useAccount();
+  const { cart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
@@ -197,7 +198,7 @@ const NavBar = observer(function NavBar() {
                   onClick={() => uiStore.toggleCart()}
                 >
                   <Badge
-                    badgeContent={cartStore.totalQuantity}
+                    badgeContent={cart?.totalQuantity ?? 0}
                     color="primary"
                   >
                     <LocalMallOutlined />

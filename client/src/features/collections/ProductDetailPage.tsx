@@ -17,7 +17,8 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 
 import { useProductDetail } from "../../lib/hooks/useProducts";
-import { cartStore } from "../../lib/stores/cartStore"; // ✅ ADD
+import { cartStore } from "../../lib/stores/cartStore";
+import { useCart } from "../../lib/hooks/useCart";
 import { RelatedProductsCarousel } from "./components/ProductDetailPageComponents/RelatedProductsCarousel";
 
 const NAV_H = 56;
@@ -29,6 +30,7 @@ export default function ProductDetailPage() {
     const { id } = useParams<{ id: string }>();
     const nav = useNavigate();
     const { product, isLoading } = useProductDetail(id);
+    const { addItem } = useCart();
 
     const [activeVariantId, setActiveVariantId] = useState<string | null>(null);
     const [activeImg, setActiveImg] = useState(0);
@@ -51,11 +53,23 @@ export default function ProductDetailPage() {
     const handleAddToCart = () => {
         if (!product) return;
 
+        const variantId = currentVariant?.id ?? product.variants?.[0]?.id;
+        if (!variantId) return;
+
+        // 1) Cập nhật cart local (MobX) để UI phản hồi ngay
         cartStore.addItem({
             productId: product.id,
             name: product.name,
             image: images[0],
             price: currentVariant?.price ?? product.price,
+        });
+
+        // 2) Gọi API cart để lưu trên server (sử dụng cookie session)
+        // API báo thiếu 'productVariantId' trên AddCartItemDto
+        // → gửi thẳng DTO: { productVariantId, quantity }
+        addItem({
+            productVariantId: variantId,
+            quantity: 1,
         });
     };
     // =================================================

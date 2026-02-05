@@ -3,40 +3,22 @@ import { store } from "../stores/store";
 import { toast } from "react-toastify";
 import { router } from "../../app/router/Routes";
 
-const sleep = (delay: number) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, delay);
-  });
-};
-
 const agent = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
 agent.interceptors.request.use((config) => {
-  // Attach JWT access token if available
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers = config.headers ?? {};
-    // Do not overwrite an explicit Authorization header
-    if (!config.headers["Authorization"]) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
   store.uiStore.isBusy();
   return config;
 });
 
 agent.interceptors.response.use(
   async (response) => {
-    if (import.meta.env.DEV) await sleep(1000);
     store.uiStore.isIdle();
     return response;
   },
   async (error) => {
-    if (import.meta.env.DEV) await sleep(1000);
     store.uiStore.isIdle();
 
     if (!error.response) {
