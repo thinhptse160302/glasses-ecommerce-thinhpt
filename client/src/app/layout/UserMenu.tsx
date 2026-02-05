@@ -50,7 +50,7 @@ export default function UserMenu() {
             fontSize: 14,
           }}
           src={currentUser?.imageUrl || "/images/user.png"}
-          imgProps={{ referrerPolicy: "no-referrer" }}
+          slotProps={{ img: { referrerPolicy: "no-referrer" } }}
         >
           {currentUser?.displayName?.[0]?.toUpperCase() ?? "?"}
         </Avatar>
@@ -69,22 +69,20 @@ export default function UserMenu() {
           vertical: "top",
           horizontal: "center",
         }}
-        PaperProps={{
-          elevation: 4,
-          sx: {
-            mt: 1.2,
-            borderRadius: 2,
-            minWidth: 190,
-            overflow: "hidden",
-            boxShadow:
-              "0px 10px 35px rgba(15,23,42,0.18)",
-            "& .MuiMenuItem-root": {
-              fontSize: 14,
-              py: 1.1,
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1.2,
+              borderRadius: 2,
+              minWidth: 190,
+              overflow: "hidden",
+              boxShadow: "0px 10px 35px rgba(15,23,42,0.18)",
+              "& .MuiMenuItem-root": {
+                fontSize: 14,
+                py: 1.1,
+              },
             },
           },
-        }}
-        slotProps={{
           list: {
             "aria-labelledby": "basic-button",
           },
