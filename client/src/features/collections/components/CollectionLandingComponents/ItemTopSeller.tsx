@@ -1,6 +1,7 @@
 import { Box, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useProducts } from "../../../../lib/hooks/useProducts";
+import type { Product } from "../../types";
 
 export default function ItemTopSeller() {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ export default function ItemTopSeller() {
   });
 
   const visible = products.slice(0, 10);
+  const items: (Product | undefined)[] = isLoading
+    ? Array.from({ length: 10 })
+    : [...visible, ...visible];
 
   return (
     <Box
@@ -100,24 +104,23 @@ export default function ItemTopSeller() {
               },
             }}
           >
-            {(isLoading ? Array.from({ length: 10 }) : [...visible, ...visible]).map(
-              (p, idx) => {
-                if (!p) {
-                  return (
-                    <Box
-                      key={idx}
-                      sx={{
-                        flex: "0 0 260px",
-                        borderRadius: 3,
-                        bgcolor: "#e5e7eb",
-                        height: 200,
-                        opacity: 0.6,
-                      }}
-                    />
-                  );
-                }
+            {items.map((p, idx) => {
+              if (!p) {
+                return (
+                  <Box
+                    key={idx}
+                    sx={{
+                      flex: "0 0 260px",
+                      borderRadius: 3,
+                      bgcolor: "#e5e7eb",
+                      height: 200,
+                      opacity: 0.6,
+                    }}
+                  />
+                );
+              }
 
-                const product = p;
+              const product: Product = p;
                 return (
                   <Box
                     key={product.id + "-" + idx}
@@ -215,8 +218,7 @@ export default function ItemTopSeller() {
                     </Box>
                   </Box>
                 );
-              },
-            )}
+              })}
           </Box>
         </Box>
       </Box>
