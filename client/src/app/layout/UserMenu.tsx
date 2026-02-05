@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useAccount } from "../../lib/hooks/useAccount";
 import { Link } from "react-router";
-import { Add, Logout, Person } from "@mui/icons-material";
+import { Add, Logout, Person, StorefrontOutlined, BuildOutlined } from "@mui/icons-material";
 
 export default function UserMenu() {
   const { currentUser, logoutUser } = useAccount();
@@ -62,6 +62,19 @@ export default function UserMenu() {
             <Person />
           </ListItemIcon>
           <ListItemText>My profile</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem component={Link} to="/staff/sale-support" onClick={handleClose}>
+          <ListItemIcon>
+            <StorefrontOutlined />
+          </ListItemIcon>
+          <ListItemText>Sale/Support</ListItemText>
+        </MenuItem>
+        <MenuItem component={Link} to="/staff/operation" onClick={handleClose}>
+          <ListItemIcon>
+            <BuildOutlined />
+          </ListItemIcon>
+          <ListItemText>Operation</ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem

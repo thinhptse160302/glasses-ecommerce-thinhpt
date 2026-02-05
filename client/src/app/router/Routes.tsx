@@ -20,6 +20,9 @@ import CartPage from "../../features/cart/CartPage";
 
 import CheckoutPage from "../../features/checkout/CheckoutPage";
 import OrderSuccessPage from "../../features/checkout/OrderSuccessPage";
+import SaleSupportPage from "../../features/staff/sale-support/SaleSupportPage";
+import OperationPage from "../../features/staff/operation/OperationPage";
+
 export const router = createBrowserRouter([
   // ======================
   // HOME (NO NAVBAR)
@@ -58,6 +61,10 @@ export const router = createBrowserRouter([
 
       // ✅ Product detail
       { path: "product/:id", element: <ProductDetailPage /> }, // /product/g1
+
+      // Staff pages
+      { path: "staff/sale-support", element: <SaleSupportPage /> },
+      { path: "staff/operation", element: <OperationPage /> },
 
       // Other pages
       { path: "counter", element: <Counter /> },
