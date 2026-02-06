@@ -15,6 +15,7 @@ namespace API.Controllers;
 public sealed class AfterSalesTicketsController : BaseApiController
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<AfterSalesTicketListDto>>> GetTickets(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
@@ -37,12 +38,14 @@ public sealed class AfterSalesTicketsController : BaseApiController
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<AfterSalesTicketDetailDto>> GetTicketDetail(Guid id)
     {
         return HandleResult(await Mediator.Send(new GetTicketDetail.Query { TicketId = id }));
     }
 
     [HttpPut("{id}/status")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateTicketStatus(Guid id, [FromBody] UpdateTicketStatusRequest request)
     {
         return HandleResult(await Mediator.Send(new UpdateTicketStatusCommand.Command

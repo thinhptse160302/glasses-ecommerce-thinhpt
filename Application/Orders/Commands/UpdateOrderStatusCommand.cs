@@ -29,6 +29,7 @@ public sealed class UpdateOrderStatusCommand
             // Validate status transitions
             var validTransitions = new Dictionary<OrderStatus, List<OrderStatus>>
             {
+                { OrderStatus.Pending, new List<OrderStatus> { OrderStatus.Confirmed, OrderStatus.Cancelled } },
                 { OrderStatus.Confirmed, new List<OrderStatus> { OrderStatus.InProduction, OrderStatus.Cancelled } },
                 { OrderStatus.InProduction, new List<OrderStatus> { OrderStatus.ReadyToPack, OrderStatus.Cancelled } },
                 { OrderStatus.ReadyToPack, new List<OrderStatus> { OrderStatus.Packed, OrderStatus.Cancelled } },

@@ -79,7 +79,7 @@ export interface PrescriptionDetailDto {
   add?: number;
 }
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://localhost:5001/api";
 
 // Queries
 export function useGetOrders(

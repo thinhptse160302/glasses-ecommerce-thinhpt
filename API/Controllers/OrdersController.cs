@@ -15,6 +15,7 @@ namespace API.Controllers;
 public sealed class OrdersController : BaseApiController
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrders(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
@@ -37,12 +38,14 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<OrderDetailDto>> GetOrderDetail(Guid id)
     {
         return HandleResult(await Mediator.Send(new GetOrderDetail.Query { OrderId = id }));
     }
 
     [HttpPut("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] UpdateOrderRequest request)
     {
         return HandleResult(await Mediator.Send(new UpdateOrderCommand.Command
@@ -69,19 +72,20 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpPut("{id}/confirm")]
+    [AllowAnonymous]
     public async Task<IActionResult> ConfirmOrder(Guid id)
     {
-        // This would queue the order to Operation tab
-        // Implementation depends on how Operation tab queueing works
-        var order = await Mediator.Send(new GetOrderDetail.Query { OrderId = id });
-        if (!order.IsSuccess)
-            return HandleResult(order);
-
-        // Queue logic would go here
-        return Ok();
+        // Update order status to Confirmed
+        return HandleResult(await Mediator.Send(new UpdateOrderStatusCommand.Command
+        {
+            OrderId = id,
+            NewStatus = OrderStatus.Confirmed,
+            PickedQuantity = null
+        }));
     }
 
     [HttpGet("operation-queue")]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<OrderListDto>>> GetOperationQueueOrders(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
@@ -104,6 +108,7 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpPost("{id}/select-lens")]
+    [AllowAnonymous]
     public async Task<IActionResult> SelectLensForPrescription(
         Guid id,
         [FromBody] SelectLensRequest request)
@@ -117,6 +122,7 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpPut("{id}/status")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateOrderStatus(
         Guid id,
         [FromBody] UpdateOrderStatusRequest request)
@@ -130,6 +136,7 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpGet("in-production")]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<OrderListDto>>> GetInProductionOrders(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
@@ -150,6 +157,7 @@ public sealed class OrdersController : BaseApiController
     }
 
     [HttpGet("completed")]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<OrderListDto>>> GetCompletedOrders(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,

@@ -328,6 +328,31 @@ export default function OrderDetailDialog({
     }
   };
 
+  const handleEditModeToggle = () => {
+    if (!editMode) {
+      // Initialize editData when entering edit mode
+      setEditData({
+        orderItems: orderDetail.orderItems.map((item: any) => ({
+          orderItemId: item.orderItemId,
+          quantity: item.quantity,
+        })),
+        prescription: orderDetail.prescription
+          ? {
+              details: orderDetail.prescription.details.map((d: any) => ({
+                eye: d.eye,
+                sph: d.sph,
+                cyl: d.cyl,
+                axis: d.axis,
+                pd: d.pd,
+                add: d.add,
+              })),
+            }
+          : null,
+      });
+    }
+    setEditMode(!editMode);
+  };
+
   const handleConfirmOrder = async () => {
     if (
       globalThis.confirm(
@@ -490,7 +515,7 @@ export default function OrderDetailDialog({
             <Button onClick={onClose}>Close</Button>
             {orderDetail?.orderStatus === "Pending" && (
               <>
-                <Button onClick={() => setEditMode(true)} variant="outlined">
+                <Button onClick={handleEditModeToggle} variant="outlined">
                   Edit Order
                 </Button>
                 <Button
