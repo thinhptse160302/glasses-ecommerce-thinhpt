@@ -120,7 +120,7 @@ public sealed class Checkout
                             $"Product '{variant.VariantName}' is no longer available.", 400);
                 }
 
-                if (dto.OrderType == OrderType.ReadyStock)
+                if (dto.OrderType == OrderType.ReadyStock || dto.OrderType == OrderType.Prescription)
                 {
                     foreach (var mergedItem in mergedItems)
                     {
@@ -215,8 +215,8 @@ public sealed class Checkout
                 }
                 context.OrderItems.AddRange(orderItems);
 
-                // 8. Reserve stock (ReadyStock only — only this type reserves on create)
-                if (dto.OrderType == OrderType.ReadyStock)
+                // 8. Reserve stock for ReadyStock and Prescription orders
+                if (dto.OrderType == OrderType.ReadyStock || dto.OrderType == OrderType.Prescription)
                 {
                     foreach (var mergedItem in mergedItems)
                     {

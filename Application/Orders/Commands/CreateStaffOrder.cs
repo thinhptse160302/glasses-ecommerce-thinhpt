@@ -123,8 +123,8 @@ public sealed class CreateStaffOrder
                         return Result<Guid>.Failure($"Product variant '{variant.VariantName}' is not available.", 400);
                 }
 
-                // Validate stock for ReadyStock orders
-                if (dto.OrderType == OrderType.ReadyStock)
+                // Validate stock for ReadyStock and Prescription orders
+                if (dto.OrderType == OrderType.ReadyStock || dto.OrderType == OrderType.Prescription)
                 {
                     foreach (OrderItemInputDto item in mergedItems)
                     {
@@ -230,8 +230,8 @@ public sealed class CreateStaffOrder
                 }
                 context.OrderItems.AddRange(orderItems);
 
-                // 8. Reserve stock for ReadyStock orders
-                if (dto.OrderType == OrderType.ReadyStock)
+                // 8. Reserve stock for ReadyStock and Prescription orders
+                if (dto.OrderType == OrderType.ReadyStock || dto.OrderType == OrderType.Prescription)
                 {
                     foreach (OrderItemInputDto item in mergedItems)
                     {
